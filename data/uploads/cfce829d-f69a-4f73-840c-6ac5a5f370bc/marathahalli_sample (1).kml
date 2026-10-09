@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Marathahalli Sample Data</name>
+
+    <Placemark>
+      <name>Sample Plot</name>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              77.7010,12.9560,0
+              77.7020,12.9560,0
+              77.7020,12.9570,0
+              77.7010,12.9570,0
+              77.7010,12.9560,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <Placemark>
+      <name>Sample Route</name>
+      <LineString>
+        <coordinates>
+          77.7005,12.9555,0
+          77.7010,12.9560,0
+          77.7015,12.9565,0
+          77.7020,12.9570,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <Placemark>
+      <name>Marathahalli Reference Point</name>
+      <Point>
+        <coordinates>77.701943,12.956194,0</coordinates>
+      </Point>
+    </Placemark>
+
+  </Document>
+</kml>
