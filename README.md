@@ -1,41 +1,49 @@
+
 # Geospatial File Measurement API
 
-A production-style FastAPI backend for the Aereo Software Development Intern assignment.
+A FastAPI-based backend project for the Aereo Software Development Intern assignment. It processes geospatial files and calculates polygon areas and line lengths using CRS-aware projections.
 
-## What it does
+## Features
 
-- Uploads `.kml`, `.kmz`, or zipped ESRI Shapefile files.
-- Reads every feature and returns geometry, attributes and CRS.
-- Calculates polygon area in **square metres**.
-- Calculates line length in **metres**.
-- Uses CRS-aware local projections instead of treating longitude/latitude degrees as distances.
-- Stores uploads and processed features in SQLite.
-- Provides pagination, deletion and a health endpoint.
-- Includes automated tests and a Dockerfile.
+- Upload KML, KMZ, and zipped ESRI Shapefile files
+- Extract geometry, attributes, and coordinate reference system (CRS)
+- Calculate polygon area in square metres
+- Calculate line length in metres
+- Transform geographic coordinates before measurement
+- Store uploaded files and processed features in SQLite
+- Support pagination, file deletion, and health checks
+- Include automated tests and Docker support
 
-> The implementation is intentionally original. It is designed around the assignment's core problem rather than copying another candidate's solution.
+## Technology Stack
+
+- Python
+- FastAPI
+- GeoPandas
+- Shapely
+- SQLAlchemy
+- SQLite
+- Pytest
+- Docker
 
 ## Architecture
 
 ```text
 Client
   |
-  v
 FastAPI
   |
-  +--> upload validation
+Upload Validation
   |
-  +--> KML parser / Shapefile reader
+Geospatial File Processing
   |
-  +--> CRS-aware measurement service
+CRS-Aware Measurement
   |
-  +--> SQLite persistence
+SQLite Database
   |
-  v
-JSON response
+JSON Response
 ```
 
-## Supported geometry
+## Supported Geometry
 
 | Geometry | Measurement |
 |---|---|
@@ -43,20 +51,18 @@ JSON response
 | MultiPolygon | Area in m² |
 | LineString | Length in m |
 | MultiLineString | Length in m |
-| Point / MultiPoint | No area/length |
-| GeometryCollection | Reported as unsupported |
+| Point / MultiPoint | No area or length |
+| GeometryCollection | Unsupported |
 
-## Why CRS handling matters
+## Why CRS Handling Matters
 
-A KML normally uses WGS84 longitude/latitude. Those coordinates are angular degrees, not metres. The service therefore transforms geographic data into a local projected CRS before calculating area or length.
+Longitude and latitude coordinates use angular degrees, not metres. The application transforms geographic data into an appropriate local projected coordinate reference system before calculating area or length.
 
-For polygons, a local Lambert azimuthal equal-area projection is used. For lines, a local azimuthal-equidistant projection is used. Existing projected CRSs with linear units are used directly, except Web Mercator, which is reprojected before measurement.
+GeoPandas handles geospatial file reading, while FastAPI provides the REST API.
 
-GeoPandas provides the file-reading layer for spatial files, while FastAPI's `UploadFile` is used for multipart uploads.
+## Installation and Setup
 
-## Local setup
-
-### Windows PowerShell
+### Windows
 
 ```powershell
 py -3.11 -m venv .venv
@@ -74,116 +80,48 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Open:
+Open these URLs after starting the application:
 
-- Swagger UI: http://127.0.0.1:8000/docs
-- Health: http://127.0.0.1:8000/health
+- **API Documentation:** http://127.0.0.1:8000/docs
+- **Health Check:** http://127.0.0.1:8000/health
+- **Dashboard:** http://127.0.0.1:8000/
 
-## API
+## API Endpoints
 
-### 1. Upload
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/api/files/` | Upload a geospatial file |
+| GET | `/api/files/` | List uploaded files |
+| GET | `/api/files/{file_id}` | Retrieve file metadata |
+| GET | `/api/files/{file_id}/measurements/` | Retrieve measurements |
+| DELETE | `/api/files/{file_id}` | Delete a file |
+| GET | `/health` | Check API status |
 
-```http
-POST /api/files/
-```
+## Screenshots
 
-Multipart field:
+Add your actual screenshots to the `screenshots/` folder in the project.
 
-```text
-file
-```
+### Dashboard
 
-Example:
+![GeoMeasure Dashboard](screenshots/02-dashboard.png)
 
-```bash
-curl -X POST \
-  -F "file=@samples/sample.kml" \
-  http://127.0.0.1:8000/api/files/
-```
+### API Documentation
 
-Example response:
+![API Documentation](screenshots/01-api-docs.png)
 
-```json
-{
-  "id": "generated-uuid",
-  "filename": "sample.kml",
-  "feature_count": 3,
-  "crs": "EPSG:4326",
-  "status": "COMPLETED",
-  "file_type": "kml",
-  "created_at": "2026-10-08T00:00:00Z"
-}
-```
+### File Upload Result
 
-### 2. Measurements
+![File Upload Result](screenshots/03-upload-result.png)
 
-```http
-GET /api/files/{file_id}/measurements/
-```
+### Measurement Results
 
-Optional:
+![Measurement Results](screenshots/04-measurement-results.png)
 
-```text
-limit=100
-offset=0
-```
-
-The response contains:
-
-- total polygon area
-- total line length
-- feature count
-- unsupported feature count
-- per-feature geometry
-- per-feature properties
-- per-feature measurement
-- measurement CRS
-
-### 3. File metadata
-
-```http
-GET /api/files/{file_id}
-```
-
-### 4. List files
-
-```http
-GET /api/files/?limit=50&offset=0
-```
-
-### 5. Delete
-
-```http
-DELETE /api/files/{file_id}
-```
-
-### 6. Health
-
-```http
-GET /health
-```
-
-## Error handling
-
-- `400` - empty file, unsupported extension, malformed/unsafe archive
-- `413` - upload/archive/feature limit exceeded
-- `422` - valid extension but unreadable geospatial contents
-- `404` - unknown file id
-
-## Security considerations
-
-The upload pipeline:
-
-1. strips path components from filenames
-2. limits upload size
-3. validates extensions
-4. checks ZIP member count
-5. checks uncompressed archive size
-6. rejects ZIP path traversal
-7. requires the standard Shapefile companion files
-8. never trusts a missing `.prj` by guessing a CRS
+> Ensure the image filenames match the files in your screenshots folder exactly.
 
 ## Testing
+
+Run the automated tests using:
 
 ```bash
 pytest -q
@@ -191,31 +129,33 @@ pytest -q
 
 ## Docker
 
+Build the Docker image:
+
 ```bash
 docker build -t geospatial-file-measurement-api .
+```
+
+Run the application:
+
+```bash
 docker run --rm -p 8000:8000 geospatial-file-measurement-api
 ```
 
-Then open `http://127.0.0.1:8000/docs`.
+Then open http://127.0.0.1:8000/docs.
 
-## Suggested demo
+## Security
 
-Use `samples/sample.kml`.
+The upload pipeline is designed to validate filenames and extensions, limit upload and archive sizes, check ZIP contents, reject path traversal, and require standard Shapefile companion files.
 
-1. Start the API.
-2. Open `/docs`.
-3. Open `POST /api/files/`.
-4. Upload `samples/sample.kml`.
-5. Copy the returned `id`.
-6. Call `GET /api/files/{id}/measurements/`.
-7. Show the area/length results and explain why the API does not calculate directly in degrees.
+## Future Improvements
 
-## Future improvements
+- PostgreSQL/PostGIS support
+- Background processing for large uploads
+- Authentication and user quotas
+- Cloud object storage
+- Additional geospatial formats
+- CI/CD and cloud deployment
 
-- PostgreSQL/PostGIS for production scale
-- Redis/background jobs for large uploads
-- authentication and per-user quotas
-- object storage
-- GeoJSON/GeoPackage support
-- geodesic measurement as an optional comparison
-- CI/CD and deployment to a cloud platform
+## Author
+
+Developed as a geospatial file measurement project using Python and FastAPI.
