@@ -102,20 +102,29 @@ Open these URLs after starting the application:
 Add your actual screenshots to the `screenshots/` folder in the project.
 
 ### Dashboard
+<img width="1917" height="1026" alt="image" src="https://github.com/user-attachments/assets/2d1284e9-a805-4dff-8a67-9ae0e33a130d" />
 
-![GeoMeasure Dashboard](screenshots/02-dashboard.png)
+
+
 
 ### API Documentation
 
-![API Documentation](screenshots/01-api-docs.png)
+<img width="1902" height="907" alt="image" src="https://github.com/user-attachments/assets/c4b1645a-e590-4498-a077-d6d246966113" />
+
 
 ### File Upload Result
+<img width="1903" height="1023" alt="image" src="https://github.com/user-attachments/assets/6a76d415-84ae-4c63-9c86-30a828e78c78" />
 
-![File Upload Result](screenshots/03-upload-result.png)
+
 
 ### Measurement Results
+<img width="1898" height="1008" alt="image" src="https://github.com/user-attachments/assets/6931ac3e-7900-4650-9c9c-15aa23b36853" />
 
-![Measurement Results](screenshots/04-measurement-results.png)
+### api
+
+<img width="1903" height="1023" alt="image" src="https://github.com/user-attachments/assets/4c37126f-4101-4f2c-8a1e-500517923599" />
+
+
 
 > Ensure the image filenames match the files in your screenshots folder exactly.
 
